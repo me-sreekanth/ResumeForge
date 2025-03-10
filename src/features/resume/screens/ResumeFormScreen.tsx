@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
-  TextInput,
   ScrollView,
-  Button,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -15,22 +12,17 @@ import {
 import { saveResume, loadResume } from "../services/storageService";
 import { pickJsonFile } from "../utils/fileHandler";
 import { Resume } from "../../../shared/types/Resume";
-import { generatePDF, sharePDF } from "../utils/pdfGenerator";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackParamList";
+import { TextInput, Button, Card, Divider, Text } from "react-native-paper";
 
 export default function ResumeFormScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, "ResumeForm">>();
   const [resume, setResume] = useState<Resume>({
     name: "",
     current_position: "",
-    contact: {
-      email: "",
-      phone: "",
-      linkedin: "",
-      github: "",
-    },
+    contact: { email: "", phone: "", linkedin: "", github: "" },
     summary: "",
     skills: [],
     experience: [],
@@ -42,9 +34,7 @@ export default function ResumeFormScreen() {
   useEffect(() => {
     async function fetchResume() {
       const savedResume = await loadResume();
-      if (savedResume) {
-        setResume(savedResume);
-      }
+      if (savedResume) setResume(savedResume);
     }
     fetchResume();
   }, []);
@@ -57,24 +47,10 @@ export default function ResumeFormScreen() {
   const handleUploadJson = async () => {
     const uploadedData = await pickJsonFile();
     if (uploadedData) {
-      setResume({
-        ...uploadedData,
-        skills: uploadedData.skills ? uploadedData.skills : [],
-      });
+      setResume({ ...uploadedData, skills: uploadedData.skills || [] });
       Alert.alert("Success", "Resume loaded from file!");
     } else {
       Alert.alert("Error", "Invalid JSON file or upload canceled.");
-    }
-  };
-
-  const handleGeneratePDF = async () => {
-    const pdfUri = await generatePDF(resume);
-    if (pdfUri) {
-      Alert.alert("PDF Ready", "Click OK to share.", [
-        { text: "OK", onPress: () => sharePDF(pdfUri) },
-      ]);
-    } else {
-      Alert.alert("Error", "Failed to generate PDF.");
     }
   };
 
@@ -83,113 +59,85 @@ export default function ResumeFormScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Text style={styles.header}>Resume Details</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text style={styles.header}>Resume Details</Text>
 
-          <Button title="Upload JSON Resume" onPress={handleUploadJson} />
+              <Button mode="contained" icon="upload" onPress={handleUploadJson} style={styles.button}>
+                Upload JSON Resume
+              </Button>
 
-        
-<Button title="Preview PDF" onPress={handlePreviewPDF} />
+              <Button mode="contained" icon="eye" onPress={handlePreviewPDF} style={styles.button}>
+                Preview PDF
+              </Button>
 
-          <TextInput
-            placeholder="Full Name"
-            value={resume.name}
-            onChangeText={(text) => setResume({ ...resume, name: text })}
-            style={styles.input}
-          />
+              <Divider style={styles.divider} />
 
-          <TextInput
-            placeholder="Current Position"
-            value={resume.current_position}
-            onChangeText={(text) => setResume({ ...resume, current_position: text })}
-            style={styles.input}
-          />
+              <TextInput label="Full Name" value={resume.name} onChangeText={(text) => setResume({ ...resume, name: text })} style={styles.input} mode="outlined" />
+              <TextInput label="Current Position" value={resume.current_position} onChangeText={(text) => setResume({ ...resume, current_position: text })} style={styles.input} mode="outlined" />
 
-          <Text style={styles.sectionTitle}>Contact Information</Text>
-          <TextInput placeholder="Email" value={resume.contact.email} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, email: text } })} style={styles.input} />
-          <TextInput placeholder="Phone" value={resume.contact.phone} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, phone: text } })} style={styles.input} />
-          <TextInput placeholder="LinkedIn" value={resume.contact.linkedin} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, linkedin: text } })} style={styles.input} />
-          <TextInput placeholder="GitHub" value={resume.contact.github} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, github: text } })} style={styles.input} />
+              <Text style={styles.sectionTitle}>Contact Information</Text>
+              <TextInput label="Email" value={resume.contact.email} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, email: text } })} style={styles.input} mode="outlined" />
+              <TextInput label="Phone" value={resume.contact.phone} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, phone: text } })} style={styles.input} mode="outlined" />
+              <TextInput label="LinkedIn" value={resume.contact.linkedin} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, linkedin: text } })} style={styles.input} mode="outlined" />
+              <TextInput label="GitHub" value={resume.contact.github} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, github: text } })} style={styles.input} mode="outlined" />
 
-          <Text style={styles.sectionTitle}>Summary</Text>
-          <TextInput placeholder="Summary" multiline value={resume.summary} onChangeText={(text) => setResume({ ...resume, summary: text })} style={styles.input} />
+              <Text style={styles.sectionTitle}>Summary</Text>
+              <TextInput label="Summary" multiline numberOfLines={4} value={resume.summary} onChangeText={(text) => setResume({ ...resume, summary: text })} style={styles.input} mode="outlined" />
 
-          <Text style={styles.sectionTitle}>Skills</Text>
-          <TextInput placeholder="Skills (comma-separated)" value={resume.skills.join(", ")} onChangeText={(text) => setResume({ ...resume, skills: text.split(", ") })} style={styles.input} />
+              <Text style={styles.sectionTitle}>Skills</Text>
+              <TextInput label="Skills (comma-separated)" multiline numberOfLines={2} value={resume.skills.join(", ")} onChangeText={(text) => setResume({ ...resume, skills: text.split(", ") })} style={styles.input} mode="outlined" />
 
-          <Text style={styles.sectionTitle}>Experience</Text>
-          {resume.experience.map((exp, index) => (
-            <View key={index} style={styles.card}>
-              <TextInput placeholder="Job Title" value={exp.title} onChangeText={(text) => {
-                const updatedExperience = [...resume.experience];
-                updatedExperience[index] = { ...updatedExperience[index], title: text };
-                setResume({ ...resume, experience: updatedExperience });
-              }} style={styles.cardInput} />
-              <TextInput placeholder="Company" value={exp.company} onChangeText={(text) => {
-                const updatedExperience = [...resume.experience];
-                updatedExperience[index] = { ...updatedExperience[index], company: text };
-                setResume({ ...resume, experience: updatedExperience });
-              }} style={styles.cardInput} />
-              <TextInput placeholder="Years" value={exp.years} onChangeText={(text) => {
-                const updatedExperience = [...resume.experience];
-                updatedExperience[index] = { ...updatedExperience[index], years: text };
-                setResume({ ...resume, experience: updatedExperience });
-              }} style={styles.cardInput} />
-              {exp.details.map((detail, detailIndex) => (
-                <TextInput key={detailIndex} placeholder="Detail" value={detail} onChangeText={(text) => {
-                  const updatedExperience = [...resume.experience];
-                  updatedExperience[index].details[detailIndex] = text;
-                  setResume({ ...resume, experience: updatedExperience });
-                }} style={styles.detailInput} />
+              <Text style={styles.sectionTitle}>Experience</Text>
+              {resume.experience.map((exp, index) => (
+                <Card key={index} style={styles.subCard}>
+                  <Card.Content>
+                    <Text style={styles.subHeader}>Experience {index + 1}</Text>
+                    <TextInput label="Job Title" value={exp.title} onChangeText={(text) => {
+                      const updatedExperience = [...resume.experience];
+                      updatedExperience[index].title = text;
+                      setResume({ ...resume, experience: updatedExperience });
+                    }} mode="outlined" style={styles.cardInput} />
+                  </Card.Content>
+                </Card>
               ))}
-            </View>
-          ))}
 
-          <Text style={styles.sectionTitle}>Achievements</Text>
-          {resume.achievements.map((achievement, index) => (
-            <TextInput
-              key={index}
-              placeholder="Achievement"
-              value={achievement}
-              onChangeText={(text) => {
-                const updatedAchievements = [...resume.achievements];
-                updatedAchievements[index] = text;
-                setResume({ ...resume, achievements: updatedAchievements });
-              }}
-              style={styles.input}
-            />
-          ))}
+              <Text style={styles.sectionTitle}>Projects</Text>
+              {resume.projects.map((project, index) => (
+                <Card key={index} style={styles.subCard}>
+                  <Card.Content>
+                    <Text style={styles.subHeader}>Project {index + 1}</Text>
+                    <TextInput label="Project Name" value={project.name} onChangeText={(text) => {
+                      const updatedProjects = [...resume.projects];
+                      updatedProjects[index].name = text;
+                      setResume({ ...resume, projects: updatedProjects });
+                    }} mode="outlined" style={styles.cardInput} />
+                  </Card.Content>
+                </Card>
+              ))}
 
-          <Text style={styles.sectionTitle}>Education</Text>
-          {resume.education.map((edu, index) => (
-            <View key={index} style={styles.card}>
-              <TextInput placeholder="Degree" value={edu.degree} onChangeText={(text) => {
-                const updatedEducation = [...resume.education];
-                updatedEducation[index].degree = text;
-                setResume({ ...resume, education: updatedEducation });
-              }} style={styles.cardInput} />
-              <TextInput placeholder="Institution" value={edu.institution} onChangeText={(text) => {
-                const updatedEducation = [...resume.education];
-                updatedEducation[index].institution = text;
-                setResume({ ...resume, education: updatedEducation });
-              }} style={styles.cardInput} />
-              <TextInput placeholder="Year" value={edu.year} onChangeText={(text) => {
-                const updatedEducation = [...resume.education];
-                updatedEducation[index].year = text;
-                setResume({ ...resume, education: updatedEducation });
-              }} style={styles.cardInput} />
-            </View>
-          ))}
+              <Text style={styles.sectionTitle}>Education</Text>
+              {resume.education.map((edu, index) => (
+                <Card key={index} style={styles.subCard}>
+                  <Card.Content>
+                    <Text style={styles.subHeader}>Education {index + 1}</Text>
+                    <TextInput label="Degree" value={edu.degree} onChangeText={(text) => {
+                      const updatedEducation = [...resume.education];
+                      updatedEducation[index].degree = text;
+                      setResume({ ...resume, education: updatedEducation });
+                    }} mode="outlined" style={styles.cardInput} />
+                  </Card.Content>
+                </Card>
+              ))}
 
-          <Button title="Save Resume" onPress={handleSave} />
+              <Button mode="contained" icon="content-save" onPress={handleSave} style={styles.button}>
+                Save Resume
+              </Button>
+            </Card.Content>
+          </Card>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -197,11 +145,53 @@ export default function ResumeFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1, paddingBottom: 20 },
-  header: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
-  sectionTitle: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
-  input: { borderBottomWidth: 1, marginBottom: 10, padding: 8 },
-  card: { backgroundColor: "#f9f9f9", padding: 10, marginVertical: 5, borderRadius: 8 },
-  cardInput: { borderBottomWidth: 1, padding: 6, marginBottom: 5 },
-  detailInput: { backgroundColor: "#fff", padding: 8, marginBottom: 5, borderRadius: 5, borderWidth: 1, borderColor: "#ddd" },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+    backgroundColor: "#F5F5F5",
+  },
+  card: {
+    margin: 15,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "white",
+    elevation: 4,
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 15,
+  },
+  subHeader: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#555",
+    marginBottom: 5,
+  },
+  input: {
+    marginBottom: 10,
+  },
+  subCard: {
+    backgroundColor: "#FAFAFA",
+    marginVertical: 5,
+    padding: 10,
+    borderRadius: 10,
+    elevation: 2,
+  },
+  cardInput: {
+    marginBottom: 5,
+  },
+  divider: {
+    marginVertical: 15,
+  },
+  button: {
+    marginVertical: 10,
+  },
 });
+
