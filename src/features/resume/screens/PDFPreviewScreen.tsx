@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Button, Alert, ActivityIndicator, Platform } from "react-native";
+import { View, Alert, ActivityIndicator, Platform, StyleSheet } from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as Sharing from "expo-sharing";
+import { TextInput, Button, Card, Divider } from "react-native-paper";
+
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { generatePDF } from "../utils/pdfGenerator";
 import { RootStackParamList } from "../../../navigation/RootStackParamList";
-import * as DocumentPicker from "expo-document-picker";
-
-
 
 type PDFPreviewScreenProps = NativeStackScreenProps<RootStackParamList, "PDFPreview">;
 
@@ -16,6 +15,7 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
   const { resume } = route.params;
   const [pdfUri, setPdfUri] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fileName, setFileName] = useState<string>("Resume");
 
   useEffect(() => {
     const generate = async () => {
@@ -25,8 +25,7 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
       if (uri) {
         console.log(`✅ PDF generated at: ${uri}`);
         try {
-          // Move file to a permanent location in app storage
-          const newUri = `${FileSystem.documentDirectory}resume.pdf`;
+          const newUri = `${FileSystem.documentDirectory}${fileName}.pdf`;
           await FileSystem.moveAsync({ from: uri, to: newUri });
 
           console.log(`📂 Moved PDF to: ${newUri}`);
@@ -54,7 +53,6 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
     console.log(`📖 Converting to Content URI: ${pdfUri}`);
 
     try {
-      // Convert file:// URI to content:// URI
       const contentUri = await FileSystem.getContentUriAsync(pdfUri);
       console.log(`✅ Content URI: ${contentUri}`);
 
@@ -72,44 +70,37 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
     }
   };
 
-
-  
   const downloadPDF = async () => {
     if (!pdfUri) {
       Alert.alert("Error", "PDF not available.");
       return;
     }
-  
+
     try {
       if (Platform.OS === "android") {
-        // Prompt user to choose a folder
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-  
         if (!permissions.granted) {
           console.log("❌ User denied folder access.");
           Alert.alert("Permission Required", "Please allow access to save the file.");
           return;
         }
-  
-        // Create a new file URI in the selected folder
-        const fileName = "Resume.pdf";
+
         const destinationUri = await FileSystem.StorageAccessFramework.createFileAsync(
           permissions.directoryUri,
-          fileName,
+          `${fileName}.pdf`,
           "application/pdf"
         );
-  
+
         console.log(`📂 Saving PDF to: ${destinationUri}`);
-  
-        // Write the PDF data to the selected location
+
         const pdfData = await FileSystem.readAsStringAsync(pdfUri, {
           encoding: FileSystem.EncodingType.Base64,
         });
-  
+
         await FileSystem.writeAsStringAsync(destinationUri, pdfData, {
           encoding: FileSystem.EncodingType.Base64,
         });
-  
+
         console.log("✅ PDF successfully saved!");
         Alert.alert("Success", "PDF saved successfully to your selected folder.");
       } else {
@@ -120,8 +111,6 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
       Alert.alert("Error", "Could not save PDF.");
     }
   };
-  
-  
 
   const sharePDF = async () => {
     if (!pdfUri) {
@@ -144,19 +133,62 @@ export default function PDFPreviewScreen({ route, navigation }: PDFPreviewScreen
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-      {loading ? (
-        <>
-          <ActivityIndicator size="large" />
-          <Button title="Generating PDF..." disabled />
-        </>
-      ) : (
-        <>
-          <Button title="Open PDF" onPress={openPDF} />
-          <Button title="Download PDF" onPress={downloadPDF} />
-          <Button title="Share PDF" onPress={sharePDF} />
-        </>
-      )}
+    <View style={styles.container}>
+      <Card style={styles.card}>
+        <Card.Content>
+          <TextInput
+            mode="outlined"
+            label="File Name"
+            value={fileName}
+            onChangeText={setFileName}
+            style={styles.input}
+          />
+          <Divider style={styles.divider} />
+          
+          {loading ? (
+            <ActivityIndicator size="large" style={{ marginVertical: 20 }} />
+          ) : (
+            <>
+              <Button mode="contained" icon="file-eye" onPress={openPDF} style={styles.button}>
+                Open PDF
+              </Button>
+              <Button mode="contained" icon="download" onPress={downloadPDF} style={styles.button}>
+                Download PDF
+              </Button>
+              <Button mode="contained" icon="share" onPress={sharePDF} style={styles.button}>
+                Share PDF
+              </Button>
+            </>
+          )}
+        </Card.Content>
+      </Card>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+  },
+  card: {
+    width: "100%",
+    maxWidth: 400,
+    padding: 15,
+    elevation: 5,
+    borderRadius: 10,
+    backgroundColor: "white",
+  },
+  input: {
+    marginBottom: 10,
+  },
+  divider: {
+    marginVertical: 10,
+  },
+  button: {
+    marginVertical: 5,
+  },
+});
