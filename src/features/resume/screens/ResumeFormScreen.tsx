@@ -15,8 +15,13 @@ import {
 import { saveResume, loadResume } from "../services/storageService";
 import { pickJsonFile } from "../utils/fileHandler";
 import { Resume } from "../../../shared/types/Resume";
+import { generatePDF, sharePDF } from "../utils/pdfGenerator";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/RootStackParamList";
 
 export default function ResumeFormScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, "ResumeForm">>();
   const [resume, setResume] = useState<Resume>({
     name: "",
     current_position: "",
@@ -62,6 +67,21 @@ export default function ResumeFormScreen() {
     }
   };
 
+  const handleGeneratePDF = async () => {
+    const pdfUri = await generatePDF(resume);
+    if (pdfUri) {
+      Alert.alert("PDF Ready", "Click OK to share.", [
+        { text: "OK", onPress: () => sharePDF(pdfUri) },
+      ]);
+    } else {
+      Alert.alert("Error", "Failed to generate PDF.");
+    }
+  };
+
+  const handlePreviewPDF = () => {
+    navigation.navigate("PDFPreview", { resume });
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -75,6 +95,9 @@ export default function ResumeFormScreen() {
           <Text style={styles.header}>Resume Details</Text>
 
           <Button title="Upload JSON Resume" onPress={handleUploadJson} />
+
+        
+<Button title="Preview PDF" onPress={handlePreviewPDF} />
 
           <TextInput
             placeholder="Full Name"

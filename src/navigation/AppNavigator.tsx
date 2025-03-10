@@ -1,25 +1,14 @@
-import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { RootStackParamList } from "./RootStackParamList";
-import HomeScreen from "../features/home/screens/HomeScreen";
-import ResumeFormScreen from "../features/resume/screens/ResumeFormScreen"; // ✅ Import Resume Screen
+import ResumeFormScreen from "../features/resume/screens/ResumeFormScreen";
+import PDFPreviewScreen from "../features/resume/screens/PDFPreviewScreen";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: "Recipes" }}
-      />
-
-      <Stack.Screen
-        name="ResumeForm"
-        component={ResumeFormScreen}
-        options={{ title: "Resume Builder" }} // ✅ Add Resume Screen
-      />
+      <Stack.Screen name="ResumeForm" component={ResumeFormScreen} options={{ title: "Resume Builder" }} />
+      <Stack.Screen name="PDFPreview" component={PDFPreviewScreen} options={{ title: "Preview Resume" }} />
     </Stack.Navigator>
   );
 }
