@@ -1,0 +1,11 @@
+{
+    "home": {
+      "title": "Recipes",
+      "error": "Error loading recipes"
+    },
+    "details": {
+      "title": "Details Screen",
+      "loading": "Loading recipe..."
+    }
+  }
+  

@@ -1,0 +1,11 @@
+{
+    "home": {
+      "title": "Recetas",
+      "error": "Error al cargar las recetas"
+    },
+    "details": {
+      "title": "Pantalla de Detalles",
+      "loading": "Cargando receta..."
+    }
+  }
+  
