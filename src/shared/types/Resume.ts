@@ -1,9 +1,11 @@
 export type Experience = {
-    title: string;
-    company: string;
-    years: string;
-    details: string[];
-  };
+  title: string;
+  company: string;
+  location: string;  // ✅ Add this field
+  years: string;
+  details: string[];
+};
+
   
   export type Project = {
     name: string;
