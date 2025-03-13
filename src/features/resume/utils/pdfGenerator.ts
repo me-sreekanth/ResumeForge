@@ -3,16 +3,21 @@ import * as Sharing from "expo-sharing";
 import { Resume } from "../../../shared/types/Resume";
 
 /* Constants for layout adjustments */
+/* Constants for layout adjustments */
 const PAGE_TOP_BOTTOM_MARGIN = "0.25in";  // Ensures consistent top/bottom margins
 const PAGE_LEFT_RIGHT_MARGIN = "0in";  // Ensures consistent left/right margins
 const SECTION_SPACING = "15px";  // Space between sections
 const DIVIDER_SPACING = "12px";  // Space above/below section dividers
+const BULLET_POINT_SPACING = "4px";  // Adjusted spacing between bullet points
+const BULLET_POINT_LINE_HEIGHT = "1.3";  // Controls bullet point line height
 const HEADER_FONT_SIZE = "24px";  // Main name font size
 const SUBHEADER_FONT_SIZE = "16px"; // Section title font size
 const NORMAL_FONT_SIZE = "14px";  // Regular text size
 const SKILL_FONT_SIZE = "12px";  // Skill tag font size
 const EXPERIENCE_TITLE_SIZE = "14px"; // Job title font size
 const EXPERIENCE_COMPANY_SIZE = "14px"; // Company name font size
+
+
 export const generatePDF = async (resume: Resume) => {
   console.log("📝 Generating HTML for PDF...");
 
@@ -62,6 +67,10 @@ export const generatePDF = async (resume: Resume) => {
             line-height: 1.5;
             margin: 3px 0;
           }
+li {
+  margin-bottom: ${BULLET_POINT_SPACING};  /* Space between bullet points */
+  line-height: ${BULLET_POINT_LINE_HEIGHT};  /* Adjusted line height for compactness */
+}
 
           ul {
             padding-left: 18px;
@@ -151,6 +160,23 @@ export const generatePDF = async (resume: Resume) => {
             page-break-before: always;
             padding-top: ${PAGE_TOP_BOTTOM_MARGIN};
           }
+
+          .project-container {
+  margin-bottom: 8px;
+}
+
+.project-title {
+  font-weight: bold;
+  color: #000000;
+  font-size: 14px;
+  display: inline; /* Ensures it remains inline with the description */
+}
+
+.project-description {
+  font-size: 14px;
+  color: black;
+  display: inline; /* Keeps description on the same line */
+}
         </style>
       </head>
       <body>
@@ -183,37 +209,40 @@ export const generatePDF = async (resume: Resume) => {
 
         <div class="divider"></div>
 
-        <!-- EXPERIENCE SECTION -->
-        <div class="section">
-          <h2 class="section-title">RELEVANT EXPERIENCE</h2>
-          ${resume.experience?.map(exp => `
-            <div style="display: flex; justify-content: space-between;">
-              <h3 class="experience-company">${exp.company}</h3>
-              <p class="experience-location">${exp.location || "Location N/A"}</p>
-            </div>
-            <p class="experience-title">${exp.title} <span class="experience-years">${exp.years}</span></p>
-            <ul>${exp.details.map(detail => `<li>${detail}</li>`).join("")}</ul>
-          `).join("") || "<p>No experience listed</p>"}
-        </div>
+    <!-- EXPERIENCE SECTION -->
+<div class="section">
+  <h2 class="section-title">RELEVANT EXPERIENCE</h2>
+  ${resume.experience?.map(exp => `
+    <div style="display: flex; justify-content: space-between;">
+      <h3 class="experience-company">${exp.company}</h3>
+      <p class="experience-location">${exp.location || "Location N/A"}</p>
+    </div>
+    <p class="experience-title">${exp.title} <span class="experience-years">${exp.years}</span></p>
+    <ul>${exp.details.map(detail => `<li>${detail}</li>`).join("")}</ul>
+  `).join("") || "<p>No experience listed</p>"}
+</div>
 
         <div class="divider projects-divider"></div>
 
         <!-- PROJECTS SECTION -->
-        <div class="section">
-          <h2 class="section-title">PROJECTS</h2>
-          ${resume.projects?.map(project => `
-            <h3>${project.name}</h3>
-            <p>${project.description}</p>
-          `).join("") || "<p>No projects listed</p>"}
-        </div>
+<div class="section">
+  <h2 class="section-title">PROJECTS</h2>
+  ${resume.projects?.map(project => `
+    <div class="project-container">
+      <span class="project-title">${project.name}:</span>
+      <span class="project-description"> ${project.description}</span>
+    </div>
+  `).join("") || "<p>No projects listed</p>"}
+</div>
 
         <div class="divider"></div>
 
-        <!-- ACHIEVEMENTS SECTION -->
-        <div class="section">
-          <h2 class="section-title">ACHIEVEMENTS</h2>
-          <ul>${resume.achievements?.map(achievement => `<li>${achievement}</li>`).join("") || "<p>No achievements listed</p>"}</ul>
-        </div>
+<!-- ACHIEVEMENTS SECTION -->
+<div class="section">
+  <h2 class="section-title">ACHIEVEMENTS</h2>
+  <ul>${resume.achievements?.map(achievement => `<li>${achievement}</li>`).join("") || "<p>No achievements listed</p>"}</ul>
+</div>
+
 
         <div class="divider"></div>
 
