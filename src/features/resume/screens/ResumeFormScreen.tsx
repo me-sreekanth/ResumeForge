@@ -86,15 +86,23 @@ export default function ResumeFormScreen() {
               <TextInput label="GitHub" value={resume.contact.github} onChangeText={(text) => setResume({ ...resume, contact: { ...resume.contact, github: text } })} style={styles.input} mode="outlined" />
 
               <Text style={styles.sectionTitle}>Summary</Text>
-              <TextInput label="Summary" multiline numberOfLines={4} value={resume.summary} onChangeText={(text) => setResume({ ...resume, summary: text })} style={styles.input} mode="outlined" />
-
+<TextInput
+  label="Enter a brief summary..."
+  value={resume.summary}
+  onChangeText={(text) => setResume({ ...resume, summary: text })}
+  mode="outlined"
+  multiline
+  placeholder="Write a short professional summary..."
+  style={styles.autoExpandSummary}
+/>
               <Text style={styles.sectionTitle}>Skills</Text>
-              <TextInput label="Skills (comma-separated)" value={resume.skills.join(", ")} onChangeText={(text) => setResume({ ...resume, skills: text.split(", ") })} style={styles.input} mode="outlined" />
+              <TextInput label="Skills (comma-separated)" multiline value={resume.skills.join(", ")} onChangeText={(text) => setResume({ ...resume, skills: text.split(", ") })} style={styles.autoExpandInput} mode="outlined" />
 
               <Text style={styles.sectionTitle}>Experience</Text>
               {resume.experience.map((exp, index) => (
                 <Card key={index} style={styles.subCard}>
                   <Card.Content>
+                    <Text style={styles.cardHeader}>Company #{index + 1}</Text>
                     <TextInput label="Job Title" value={exp.title} onChangeText={(text) => {
                       const updatedExperience = [...resume.experience];
                       updatedExperience[index].title = text;
@@ -110,57 +118,96 @@ export default function ResumeFormScreen() {
                       updatedExperience[index].years = text;
                       setResume({ ...resume, experience: updatedExperience });
                     }} mode="outlined" style={styles.cardInput} />
-                    <TextInput label="Details" multiline numberOfLines={3} value={exp.details.join("\n")} onChangeText={(text) => {
-                      const updatedExperience = [...resume.experience];
-                      updatedExperience[index].details = text.split("\n");
-                      setResume({ ...resume, experience: updatedExperience });
-                    }} mode="outlined" style={styles.cardInput} />
+                    <Text style={styles.cardSubHeader}>Details:</Text>
+                    {exp.details.map((detail, detailIndex) => (
+                      <TextInput key={detailIndex} label="Enter a responsibility..." multiline value={detail} onChangeText={(text) => {
+                        const updatedExperience = [...resume.experience];
+                        updatedExperience[index].details[detailIndex] = text;
+                        setResume({ ...resume, experience: updatedExperience });
+                      }} mode="outlined" style={styles.autoExpandInput} />
+                    ))}
                   </Card.Content>
                 </Card>
               ))}
 
-              <Text style={styles.sectionTitle}>Projects</Text>
-              {resume.projects.map((project, index) => (
-                <Card key={index} style={styles.subCard}>
-                  <Card.Content>
-                    <TextInput label="Project Name" value={project.name} onChangeText={(text) => {
-                      const updatedProjects = [...resume.projects];
-                      updatedProjects[index].name = text;
-                      setResume({ ...resume, projects: updatedProjects });
-                    }} mode="outlined" style={styles.cardInput} />
-                    <TextInput label="Project Description" multiline numberOfLines={3} value={project.description} onChangeText={(text) => {
-                      const updatedProjects = [...resume.projects];
-                      updatedProjects[index].description = text;
-                      setResume({ ...resume, projects: updatedProjects });
-                    }} mode="outlined" style={styles.cardInput} />
-                  </Card.Content>
-                </Card>
+              <Text style={styles.sectionTitle}>Achievements</Text>
+              {resume.achievements.map((achievement, index) => (
+                <TextInput key={index} label="Enter an achievement..." multiline value={achievement} mode="outlined" style={styles.autoExpandInput} />
               ))}
 
-              <Text style={styles.sectionTitle}>Education</Text>
-              {resume.education.map((edu, index) => (
-                <Card key={index} style={styles.subCard}>
-                  <Card.Content>
-                    <TextInput label="Degree" value={edu.degree} onChangeText={(text) => {
-                      const updatedEducation = [...resume.education];
-                      updatedEducation[index].degree = text;
-                      setResume({ ...resume, education: updatedEducation });
-                    }} mode="outlined" style={styles.cardInput} />
-                    <TextInput label="Institution" value={edu.institution} onChangeText={(text) => {
-                      const updatedEducation = [...resume.education];
-                      updatedEducation[index].institution = text;
-                      setResume({ ...resume, education: updatedEducation });
-                    }} mode="outlined" style={styles.cardInput} />
-                    <TextInput label="Remarks" multiline numberOfLines={3} value={edu.remarks} onChangeText={(text) => {
-                      const updatedEducation = [...resume.education];
-                      updatedEducation[index].remarks = text;
-                      setResume({ ...resume, education: updatedEducation });
-                    }} mode="outlined" style={styles.cardInput} />
-                  </Card.Content>
-                </Card>
-              ))}
+<Text style={styles.sectionTitle}>Education</Text>
+{resume.education.map((edu, index) => (
+  <Card key={index} style={styles.subCard}>
+    <Card.Content>
+      <Text style={styles.subHeader}>Education #{index + 1}</Text>
 
-<Button mode="contained" icon="content-save" onPress={handleSave} style={styles.button}>
+      <TextInput
+        label="Degree"
+        value={edu.degree}
+        onChangeText={(text) => {
+          const updatedEducation = [...resume.education];
+          updatedEducation[index].degree = text;
+          setResume({ ...resume, education: updatedEducation });
+        }}
+        mode="outlined"
+        style={styles.cardInput}
+      />
+
+      <TextInput
+        label="Institution"
+        value={edu.institution}
+        onChangeText={(text) => {
+          const updatedEducation = [...resume.education];
+          updatedEducation[index].institution = text;
+          setResume({ ...resume, education: updatedEducation });
+        }}
+        mode="outlined"
+        style={styles.cardInput}
+      />
+
+      <TextInput
+        label="Year"
+        value={edu.year}
+        onChangeText={(text) => {
+          const updatedEducation = [...resume.education];
+          updatedEducation[index].year = text;
+          setResume({ ...resume, education: updatedEducation });
+        }}
+        mode="outlined"
+        keyboardType="numeric"
+        style={styles.cardInput}
+      />
+
+      <TextInput
+        label="Grade"
+        value={edu.grade}
+        onChangeText={(text) => {
+          const updatedEducation = [...resume.education];
+          updatedEducation[index].grade = text;
+          setResume({ ...resume, education: updatedEducation });
+        }}
+        mode="outlined"
+        style={styles.cardInput}
+      />
+
+      <TextInput
+        label="Remarks"
+        value={edu.remarks}
+        onChangeText={(text) => {
+          const updatedEducation = [...resume.education];
+          updatedEducation[index].remarks = text;
+          setResume({ ...resume, education: updatedEducation });
+        }}
+        mode="outlined"
+        // multiline
+        placeholder="Any additional information..."
+        style={styles.autoExpandText}
+      />
+    </Card.Content>
+  </Card>
+))}
+
+              <Button mode="contained" icon="content-save" onPress={handleSave} style={styles.button}>
                 Save Resume
               </Button>
             </Card.Content>
@@ -170,7 +217,6 @@ export default function ResumeFormScreen() {
     </KeyboardAvoidingView>
   );
 }
-
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -214,5 +260,33 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 5,
+  },
+  cardHeader: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  cardSubHeader: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 8,
+  },
+  autoExpandInput: {
+    minHeight: 60,
+    marginBottom: 10,
+  },
+  autoExpandSummary: {
+    minHeight: 100, // Set a good minimum height
+    textAlignVertical: "top", // Ensures text is not clipped
+    marginBottom: 10, 
+  },
+  autoExpandText: {
+    textAlignVertical: "top",
+    marginBottom: 10,
+  },
+  subHeader: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
   },
 });
